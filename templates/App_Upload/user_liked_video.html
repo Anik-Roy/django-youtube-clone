@@ -1,0 +1,74 @@
+{% extends 'App_Upload/navbar.html' %}
+{% load static %}
+{% load custom_filter %}
+{% block title_block %} Youtube Clone {% endblock %}
+{% block style_block %}
+
+{% endblock %}
+{% block body_block %}
+    <!-- <div class="sidebar-panel" id="sidebar">
+        <div class="brand">
+            <i class="fas fa-bars" id="close-sidebar-menu"></i>
+
+            <a class="logo-title" href="#"><img class="youtube-icon" src="img/youtube.png" alt=""></a>
+
+            <hr>
+        </div>
+
+        <div>
+            <ul>
+                <li><i style="width: 20px;" class="fas fa-home" style="color: red;"></i>Home</li>
+                <li><i style="width: 20px;" class="fas fa-fire"></i>Trending</li>
+                <li><i style="width: 20px;" class="fab fa-youtube"></i>Subscription</li>
+            </ul>
+            <hr>
+        </div>
+
+        <div>
+            <ul>
+                <li><i style="width: 20px;" class="fab fa-youtube"></i>Library</li>
+                <li><i style="width: 20px;" class="fas fa-fire"></i>History</li>
+                <li><i style="width: 20px;" class="fab fa-youtube"></i>Your videos</li>
+                <li><i style="width: 20px;" class="fas fa-clock"></i>Watch letter</li>
+                <li><i style="width: 20px;" class="fas fa-thumbs-up"></i>Liked videos</li>
+            </ul>
+            <hr>
+        </div>
+    </div> -->
+        <div class="videos" id="videos_section">
+            {% if message %}
+                <div class="alert alert-danger">{{ message }}</div>
+            {% endif %}
+            <div class="videos-grid">
+                {% for uploded_video in all_video_post %}
+                    <div class="video">
+                    <div class="thumbnail">
+                        <a href="{% url 'App_Upload:play-video' pk=uploded_video.pk %}"><img src="{{ uploded_video.thumbnail.url }}" alt=""></a>
+                    </div>
+                    <div class="details">
+                        <div class="author">
+                            {% if not uploded_video.user.user_profile.profile_pic %}
+                                <img src="/media/profile_pics/profilepic.jpg" alt="">
+                            {% else %}
+                                <img src="/media/{{ uploded_video.user.user_profile.profile_pic }}" alt="">
+                            {% endif %}
+                        </div>
+                        <div class="text">
+                            <h3><a href="{% url 'App_Upload:play-video' pk=uploded_video.pk %}" style="text-decoration: none; font-weight: bold; color: black">{{ uploded_video.title|range_filter }}</a></h3>
+                            {% ifnotequal uploded_video.user request.user %}
+                                <a href="{% url 'App_User:user-profile' pk=uploded_video.user.pk %}">{{ uploded_video.user }}</a>
+                            {% else %}
+                                <a href="{% url 'App_User:profile' %}">{{ uploded_video.user }}</a>
+                            {% endifnotequal %}
+                            <span>{{ uploded_video.liked_video_post.count }} Likes<ul><li>{{ uploded_video.upload_date }}</li>
+                            </ul></span>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+{% endblock %}
+{% block script_block %}
+
+{% endblock %}

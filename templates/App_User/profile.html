@@ -1,0 +1,374 @@
+{% extends 'App_Upload/navbar.html' %}
+{% load custom_filter %}
+{% load crispy_forms_tags %}
+{% block title_block %} @{{ user.user_profile.full_name }} {% endblock %}
+{% block style_block %}
+    <style>
+        .image-container {
+            position: relative;
+        }
+        .image {
+            opacity: 1;
+            display: block;
+            width: 100%;
+            height: auto;
+            transition: .5s ease;
+            backface-visibility: hidden;
+        }
+        .middle {
+            transition: .5s ease;
+            opacity: 0;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            -ms-transform: translate(-50%, -50%);
+            text-align: center;
+        }
+        .image-container:hover .image {
+            opacity: 0.3;
+        }
+        .image-container:hover .middle {
+            opacity: 1;
+        }
+
+        {#    Post Style #}
+        .user-post > h2 {
+            border: 1px solid #ddd;
+            margin-bottom: 20px;
+            padding: 10px;
+            text-align: center;
+        }
+        .user-post {
+            margin-top: 20px;
+            padding: 20px;
+            border: 1px solid #ccc;
+        }
+        .video-div {
+            position: relative;
+            border: 1px solid #dddddd;
+            width: 400px;
+            padding: 30px;
+            overflow: hidden;
+        }
+        .video-div  img {
+            width: 100%;
+            height: 200px;
+        }
+        .video-item {
+
+        }
+        .menu-icon {
+            position: absolute;
+            top: 4px;
+            right: 5px;
+            cursor: pointer;
+            font-size: 21px;
+        }
+        .menu-icon span {
+
+        }
+        .dropdown-toggle::after {
+            content: none!important;
+        }
+    </style>
+{% endblock %}
+{% block body_block %}
+    <div class="videos" id="videos_section">
+        <div class="container">
+            <div class="row">
+                <div class="col-12 mb-4">
+                    <div class="d-flex justify-content-start">
+                        <div class="image-container">
+                            {% if user.user_profile.profile_pic %}
+                                <img id="imgProfile" class="img-thumbnail" style="width: 150px; height: 150px" src="/media/{{ user.user_profile.profile_pic}}" alt="profile-pic" />
+                            {% else %}
+                                <img id="imgProfile" class="img-thumbnail" style="width: 150px; height: 150px" src="/media/profile_pics/profilepic.jpg" alt="profile-pic" />
+                            {% endif %}
+                            <div class="middle">
+                                <input type="button" class="btn btn-secondary" id="btnChangePicture" value="Change" />
+                                <input type="file" style="display: none;" id="profilePicture" name="file" />
+                            </div>
+                        </div>
+                        <div class="userData ml-3">
+                            <h2 class="d-block" style="font-size: 1.5rem; font-weight: bold"><a href="">{{ user.username }}</a></h2>
+                            <h6 class="d-block"><a href="javascript:void(0)">{{ user.uploaded_video.count }}</a> Uploaded Videos</h6>
+                            <h6 class="d-block"><a href="javascript:void(0)">{{ user.following.count }}</a> followers || <a href="javascript:void(0)">{{ user.follower.count }}</a> following</h6>
+                            <br/>
+                            <a class="btn btn-warning btn-sm" href="{% url 'App_User:edit-profile' %}">Edit Profile</a> || <a class="btn btn-success btn-sm" href="" data-toggle="modal" data-target="#upload-form">Upload Video</a>
+                        </div>
+                        <!-- Modal -->
+                        <div class="modal fade" id="upload-form" tabindex="-1" role="dialog" aria-labelledby="upload-form" aria-hidden="true">
+                          <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                              <div class="modal-header">
+                                <h5 class="modal-title" id="post-title">Upload something from here...</h5>
+                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                  <span aria-hidden="true">&times;</span>
+                                </button>
+                              </div>
+                              <div class="modal-body">
+                                  <form method="POST" enctype="multipart/form-data">
+                                      {{ form|crispy }}
+                                      {% csrf_token %}
+                                      <input class="btn btn-success btn-sm" type="submit" value="Upload Video" />
+                                  </form>
+                                {% csrf_token %}
+                              </div>
+                              <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                        <div class="ml-auto">
+                            <input type="button" class="btn btn-primary d-none" id="btnDiscard" value="Discard Changes" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="col-12">
+                    <ul class="nav nav-tabs mb-4" id="myTab" role="tablist">
+                        <li class="nav-item">
+                            <a class="nav-link active" id="basicInfo-tab" data-toggle="tab" href="#basicInfo" role="tab" aria-controls="basicInfo" aria-selected="true">Basic Info</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" id="connectedServices-tab" data-toggle="tab" href="#connectedServices" role="tab" aria-controls="connectedServices" aria-selected="false">Connected Services</a>
+                        </li>
+                    </ul>
+                    <div class="tab-content ml-1" id="myTabContent">
+                        <div class="tab-pane fade show active" id="basicInfo" role="tabpanel" aria-labelledby="basicInfo-tab">
+                            <div class="row">
+                                <div class="col-sm-3 col-md-2 col-5">
+                                    <label style="font-weight:bold;">Full Name</label>
+                                </div>
+                                <div class="col-md-8 col-6">
+                                    {{ user.user_profile.full_name }}
+                                </div>
+                            </div>
+                            <hr />
+
+                            <div class="row">
+                                <div class="col-sm-3 col-md-2 col-5">
+                                    <label style="font-weight:bold;">Birth Date</label>
+                                </div>
+                                <div class="col-md-8 col-6">
+                                    {{ user.user_profile.dob }}
+                                </div>
+                            </div>
+                            <hr />
+
+                            <div class="row">
+                                <div class="col-sm-3 col-md-2 col-5">
+                                    <label style="font-weight:bold;">Email</label>
+                                </div>
+                                <div class="col-md-8 col-6">
+                                    {{ user.email }}
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-sm-3 col-md-2 col-5">
+                                    <label style="font-weight:bold;">Username</label>
+                                </div>
+                                <div class="col-md-8 col-6">
+                                    {{ user.username }}
+                                </div>
+                            </div>
+                            <hr />
+                            <div class="row">
+                                <div class="col-sm-3 col-md-2 col-5">
+                                    <label style="font-weight:bold;">Description</label>
+                                </div>
+                                <div class="col-md-8 col-6">
+                                    {{ user.user_profile.description|linebreaks }}
+                                </div>
+                            </div>
+                            <hr />
+                        </div>
+                        <div class="tab-pane fade" id="connectedServices" role="tabpanel" aria-labelledby="ConnectedServices-tab">
+                            <label for="facebook">Facebook:</label>
+                            <a id="facebook" href="{{ user.user_profile.facebook }}">{{ user.user_profile.facebook }}</a>
+                            <br/>
+                            <br/>
+                            <label for="website">Website:</label>
+                            <a id="website" href="{{ user.user_profile.website }}">{{ user.user_profile.website }}</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="user-post" id="user-post">
+            <h2>My Uploaded Video</h2>
+            <div class="row">
+                {% for uploaded_video in user.uploaded_video.all %}
+                    <div class="col-4 video-div">
+                        <a href="{% url 'App_Upload:play-video' pk=uploaded_video.pk %}"><img class="post-image" style="cursor: pointer" src="/media/{{ uploaded_video.thumbnail }}" title="{{ uploaded_video.video.url }}" alt="post-image"></a>
+                        <br /><br />
+                        <p>{{ uploaded_video.title|range_filter }}</p>
+                        <p>Upload Date: {{ uploaded_video.upload_date }} | Update Date: {{ uploaded_video.update_date }}</p>
+                        <div class="menu-icon">
+                            <span class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                <i class="fas fa-ellipsis-v"></i>
+                            </span>
+
+                            <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                                <li class="dropdown-item" onclick="editUploadedVideo(event, '{{ uploaded_video.pk }}', '{{ uploaded_video.title }}', '{{ uploaded_video.video.url }}', '{{ uploaded_video.thumbnail.url }}' )">Edit</li>
+                                <li class="dropdown-item" onclick="deleteUploadedVideo(event, '{{ uploaded_video.pk }}')">Delete</li>
+                            </ul>
+                        </div>
+                    </div>
+                {% endfor %}
+            </div>
+            <!-- Modal -->
+            <div class="modal fade" id="edit-form" tabindex="-1" role="dialog" aria-labelledby="edit-form" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="post-title">Edit your uploaded video</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                  <div class="modal-body">
+                      <form id="edit-post-form" method="POST" enctype="multipart/form-data">
+                          <label for="id_edit_title">Title</label>
+                          <br />
+                          <input type="text" name="title" maxlength="264" class="textinput textInput form-control form-control" id="id_edit_title">
+                          <br />
+                          <label for="previous-video">Previous video</label>
+                          <a href="" id="previous-video">Previous video</a>
+                          <br />
+                          <br />
+                          <label for="id_edit_video">Video*</label>
+                          <br />
+                          <input type="file" name="video" accept="video/*" class="clearablefileinput form-control-file form-control-file" id="id_edit_video">
+                          <br />
+                          <label for="previous-thumbnail">Previous thumbnail</label>
+                          <a href="" id="previous-thumbnail">Previous thumbnail</a>
+                          <br />
+                          <br />
+                          <label for="id_edit_thumbnail">Thumbnail*</label>
+                          <br />
+                          <input type="file" name="thumbnail" accept="image/*" class="clearablefileinput form-control-file form-control-file" id="id_edit_thumbnail">
+                          <br />
+                          {% csrf_token %}
+                          <input class="btn btn-success btn-sm" type="submit" value="Update" />
+                      </form>
+                  </div>
+                  <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="modal fade" id="show-dialog" tabindex="-1" role="dialog" aria-labelledby="show-dialog" aria-hidden="true">
+              <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                  <div class="modal-header">
+                    <h5 class="modal-title" id="message"></h5>
+                    <button type="button" class="close" id="close" onclick="handleCloseEvent(event)" aria-label="Close">
+                      <span aria-hidden="true">&times;</span>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script_block %}
+<script type="text/javascript">
+        function editUploadedVideo(event, pk, title, videoUrl, thumbnail) {
+            console.log(pk, title, videoUrl, thumbnail);
+            let previousVideo = document.getElementById('previous-video');
+            let previousThumbnail = document.getElementById('previous-thumbnail');
+            let titleInput = document.getElementById('id_edit_title');
+
+            previousVideo.innerText = videoUrl;
+            previousVideo.href = videoUrl;
+            previousThumbnail.innerText = thumbnail;
+            previousThumbnail.href = thumbnail;
+            titleInput.value = title;
+
+            $('#edit-post-form').submit(function (e) {
+                e.preventDefault();
+                let postId = pk;
+                let token= '{{ csrf_token }}';
+                let editForm = document.getElementById('edit-post-form')
+                let data = new FormData(editForm)
+                data.append('postId', postId)
+                $.ajax({
+                    headers: {'X-CSRFToken': token},
+                    method: 'POST',
+                    url: '/edit-uploaded-video/',
+                    datatype: 'json',
+                    data: data,
+                    processData: false,
+                    contentType: false,
+                    success: function (data) {
+                        if(data === 'success') {
+                            let message = document.getElementById('message');
+                            message.innerHTML = 'Post uploaded successfully!';
+                            $('#edit-form').modal('hide');
+                            $('#show-dialog').modal('show');
+                            {#location.reload();#}
+                        }
+                    },
+                    error: function (data) {
+                        console.log("ERROR");
+                    },
+                })
+            });
+
+            $('#edit-form').modal('show');
+        }
+
+        function deleteUploadedVideo(event, pk) {
+            let answer = confirm('Are you sure to delete this post?');
+            if(answer) {
+                let token = '{{ csrf_token }}';
+                $.ajax({
+                    headers: {'X-CSRFToken': token},
+                    method: 'POST',
+                    url: '/delete-uploaded-video/',
+                    datatype: 'json',
+                    data: {'postID': pk},
+                    success: function (data) {
+                        if(data === 'success') {
+                            let message = document.getElementById('message');
+                            message.innerHTML = 'Post deleted successfully!';
+                            $('#show-dialog').modal('show');
+                            {#location.reload();#}
+                        }
+                    },
+                    error: function (data) {
+                        alert('An error occurred! Please try again!');
+                    }
+                });
+            }
+        }
+
+        function handleCloseEvent(event) {
+            location.reload();
+        }
+        /*
+        $(document).ready(function(){
+           $('.post-image').click(function (event) {
+               console.log(event.target.src)
+               {#const imgSrc = $('.post-image').prop('src');#}
+               {#const caption = $('.post-image').prop('title');#}
+               {#console.log(caption)#}
+               const imgSrc = event.target.src
+               const caption = event.target.title
+               console.log(caption)
+               $('#previous-image').attr('href', imgSrc)
+                                   .text('Previous Image: '+imgSrc);
+               $('input[name="caption"]').val(caption)
+               $('#edit-form').modal('show');
+           });
+        });
+        */
+    </script>
+{% endblock %}

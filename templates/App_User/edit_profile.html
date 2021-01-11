@@ -1,0 +1,18 @@
+{% extends 'App_Upload/navbar.html' %}
+{% load crispy_forms_tags %}
+{% block title_block %} Edit Profile - {{ user.user_profile.username }} {% endblock %}
+{% block style_block %}
+{% endblock %}
+{% block body_block %}
+    <div class="videos" id="videos_section">
+        <div class="profile-form">
+            <form method="POST" enctype="multipart/form-data">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <input class="btn btn-primary btn-sm" type="submit" value="Update Profile" />
+            </form>
+        </div>
+    </div>
+{% endblock %}
+{% block script_block %}
+{% endblock %}

@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+{% load static %}
+{% load custom_filter %}
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{% block title_block %}Youtube Clone{% endblock %}</title>
+    {% block style_block %}{% endblock %}
+    <!-- Font Awesome -->
+{#    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.8.2/css/all.css">#}
+    <!-- Google Fonts -->
+{#    <link rel="stylesheet" href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap">#}
+    <!-- Bootstrap core CSS -->
+{#    <link href="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/css/bootstrap.min.css" rel="stylesheet">#}
+    <!-- Material Design Bootstrap -->
+{#    <link href="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/css/mdb.min.css" rel="stylesheet">#}
+
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" integrity="sha384-MCw98/SFnGE8fJT3GXwEOngsV7Zt27NXFoaoApmYm81iuXoPkFOJwJ8ERdknLPMO" crossorigin="anonymous">
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="{% static 'css/style.css' %}">
+    <link rel="stylesheet" href="{% static 'css/all.min.css' %}">
+    <link rel="shortcut icon" href="{% static 'img/favicon.ico' %}" type="image/x-icon">
+</head>
+<body>
+<div class="searchBar">
+        <div class="logo">
+            <i role="button" style="cursor: pointer" class="fas fa-bars" id="menu-btn"></i>
+            <a href="{% url 'App_Upload:home' %}"><img src="{% static 'img/youtube.png' %}" alt=""></a>
+        </div>
+
+        <div class="search">
+            <form action="{% url 'App_Upload:home' %}" method="GET">
+                <input type="text" name="search" id="">
+                <button type="submit"><i class="fas fa-search"></i></button>
+            </form>
+        </div>
+
+        <div class="icons">
+{#            <i class="fas fa-video"></i>#}
+{#            <i class="fas fa-border-none"></i>#}
+{#            <i class="fas fa-bell"></i>#}
+            <div class="profile" >
+                <button class="dropdown-toggle" role="button" id="dropdownMenuLink" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                    {% if user.is_authenticated %}
+                        {{ user.username|first_character|capfirst }}
+                    {% else %}
+                        ?
+                    {% endif %}
+                </button>
+                <ul class="dropdown-menu dropdown-menu-right" aria-labelledby="dropdownMenuLink">
+                    {% if user.is_authenticated %}
+                        <li class="nav-item">
+                            <a style="color: black" class="nav-link" href="{% url 'App_User:profile' %}">Profile</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'App_User:logout' %}">Logout</a>
+                        </li>
+                    {% else %}
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'App_User:signup' %}">Sign up</a>
+                        </li>
+                        <li class="nav-item">
+                            <a class="nav-link" href="{% url 'App_User:login' %}">Log in</a>
+                        </li>
+                    {% endif %}
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="categories" id="sidebar">
+            <div class="categoriesSection">
+                <span class="category selected">
+                    <a style="text-decoration: none; color: black; font-weight: bold" class="selected" href="{% url 'App_Upload:home' %}">
+                        <i style="width: 20px; color: red;" class="fas fa-home selected"></i>
+                        <span>Home</span>
+                    </a>
+                </span>
+            </div>
+            <hr>
+            {% if user.is_authenticated %}
+                <div class="categoriesSection">
+                    <span class="category">
+                        <i style="width: 20px;" class="fab fa-youtube"></i>
+                        <span><a href="{% url 'App_User:profile' %}#user-post" style="color: black; text-decoration: none">Your videos</a></span>
+                    </span>
+                    <span class="category">
+                        <i style="width: 20px;" class="fab fa-youtube"></i>
+                        <span><a href="{% url 'App_Upload:user-like-video' %}"> Liked videos</a></span>
+                    </span>
+                </div>
+                <hr>
+                <div class="categoriesSection">
+                    <span class="heading">SUBSCRIPTIONS</span>
+                    {% for following_user in following_users_list %}
+                        <span class="category">
+                            {% if following_user.user_profile.profile_pic %}
+                                <img style="width: 20px; height: 20px" class="rounded-circle mr-2" src="/media/{{ following_user.user_profile.profile_pic }}" alt="user-profile" />
+                            {% else %}
+                                <img style="width: 20px; height: 20px" class="rounded-circle mr-2" src="/media/profile_pics/profilepic.jpg" alt="user-profile" />
+                            {% endif %}
+                            <span><a href="{% url 'App_User:user-profile' pk=following_user.pk %}" style="color: black; text-decoration: none">{{ following_user.username}}</a></span>
+                        </span>
+                    {% endfor %}
+                </div>
+                <hr>
+            {% endif %}
+        </div>
+        {% block body_block %}
+
+        {% endblock %}
+    </div>
+
+{#    <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" integrity="sha384-q8i/X+965DzO0rT7abK41JStQIAqVgRVzpbzo5smXKp4YfRvH+8abtTE1Pi6jizo" crossorigin="anonymous"></script>#}
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.3/umd/popper.min.js" integrity="sha384-ZMP7rVo3mIykV+2+9J3UJ46jBk0WLaUAdn689aCwoqbBJiSnjAK/l8WvCWPIPm49" crossorigin="anonymous"></script>
+    <!-- JQuery -->
+    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- Bootstrap tooltips -->
+{#    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.4/umd/popper.min.js"></script>#}
+    <!-- Bootstrap core JavaScript -->
+{#    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/twitter-bootstrap/4.5.0/js/bootstrap.min.js"></script>#}
+    <!-- MDB core JavaScript -->
+{#    <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/mdbootstrap/4.19.1/js/mdb.min.js"></script>#}
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/js/bootstrap.min.js" integrity="sha384-ChfqqxuZUCnJSK3+MXmPNIyE6ZbWh2IMqE241rYiqJxyMiZ6OW/JmZQ5stwEULTy" crossorigin="anonymous"></script>
+    <script src="{% static 'js/script.js' %}"></script>
+    {% block script_block %}
+    {% endblock %}
+</body>
+</html>

@@ -1,0 +1,36 @@
+{% extends 'App_Upload/navbar.html' %}
+{% load crispy_forms_tags %}
+{% block title_block %} Signup {% endblock %}
+{% block style_block %}
+    <style>
+        .signup-div {
+            margin: 70px auto 10px auto;
+            padding: 30px;
+            width: 600px;
+            border: 1px dashed #cccccc;
+        }
+        .login-block {
+            margin: 0 auto;
+            padding: 10px;
+            width: 600px;
+            border: 1px solid #cccccc;
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+{% block body_block %}
+    <div class="videos" id="videos_section">
+        <div class="signup-div">
+            <form method="POST">
+                {{ form|crispy }}
+                {% csrf_token %}
+                <input class="btn btn-primary btn-sm" type="submit" value="Create Account" />
+            </form>
+        </div>
+        <div class="login-block">
+            <p>Already have an account? <a href="{% url 'App_User:login' %}">Login</a> </p>
+        </div>
+    </div>
+{% endblock %}
+{% block script_block %}
+{% endblock %}

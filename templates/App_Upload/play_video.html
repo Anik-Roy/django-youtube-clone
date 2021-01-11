@@ -1,0 +1,264 @@
+{% extends 'App_Upload/navbar.html' %}
+{% load static %}
+{% load crispy_forms_tags %}
+{% load custom_filter %}
+{% block title_block %} Play Video {% endblock %}
+{% block style_block %}
+    <style>
+        .video {
+            width: 100%;
+            height: 400px;
+        }
+        .video-info {
+            display: flex;
+            flex-direction: column;
+            flex-wrap: wrap;
+        }
+        .video-lul-div {
+            display: flex;
+            flex-direction: row;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .icon {
+            margin-right: 20px;
+            color: #909090;
+            font-size: 28px;
+        }
+        .icon:hover {
+            text-decoration: none;
+            color: #909090;
+        }
+        .icon i {
+            margin-right: 5px;
+        }
+        .tooltip-background {
+            background-color: #909090;
+        }
+        .author-info {
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+        }
+        .author {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+        }
+        .author img {
+            width: 50px;
+            height: 50px;
+            margin-right: 20px;
+        }
+        .author a {
+            color: black;
+            text-decoration: none;
+            font-weight: bold;
+        }
+        .author a:hover {
+            color: black;
+            text-decoration: none;
+        }
+        .author .subscribe-btn {
+            color: white;
+        }
+        .author-description {
+            margin-left: 70px;
+        }
+        .comment-box {
+            display: flex;
+            flex-direction: row;
+            padding: 10px;
+        }
+        .comment-box img {
+            margin: 5px;
+        }
+        .comment-box form {
+            margin: 15px;
+            width: 100%;
+        }
+        .comment-box form textarea {
+            height: 25px;
+            width: 100%;
+            border: none;
+            border-bottom: 2px solid #aaa;
+            background-color: transparent;
+            margin-bottom: 10px;
+            resize: none;
+            outline: none;
+            overflow: hidden;
+        }
+        .comment-box form textarea:focus {
+            border-bottom: 2px solid black;
+            transition: border-bottom 1s ease-out;
+        }
+        .comment-textfield {
+            display: none;
+        }
+        .comment-textfield input[type='submit'], .comment-textfield a {
+            padding: 10px 15px;
+            border: none;
+            outline: none;
+            border-radius: 5px;
+            text-transform: uppercase;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        .users-comments {
+            padding: 5px;
+            border: 1px solid #cccccc;
+        }
+        .users-comments h4 {
+            text-align: center;
+            margin: 5px 0 22px 0;
+            border: 1px solid #cccccc;
+        }
+        .user-comment {
+            display: flex;
+        }
+        .user-comment p {
+            margin: 10px;
+        }
+        .user-comment a {
+            margin: 10px;
+            text-decoration: none;
+            color: black;
+            font-weight: bold;
+        }
+        .date {
+            margin-left: 60px;
+        }
+        .like-unlike-block {
+            margin-left: 60px;
+            border-bottom: 1px solid #cccccc;
+        }
+
+    </style>
+{% endblock %}
+{% block body_block %}
+    <div class="videos">
+        <div class="p-3">
+            <video class="video" loop muted="muted" autoplay controls="controls">
+                <source src="{{ current_video.video.url }}" type="video/mp4">
+            </video>
+            <div class="video-info pt-2">
+                <h5>{{ current_video.title|range_filter }}</h5>
+                <div class="video-lul-div">
+                    <p style="margin: 0">{{ current_video.upload_date }}</p>
+{#                    {% ifnotequal current_video.user user %}#}
+                        <div>
+                            <a href="{% url 'App_Upload:like-video' pk=current_video.pk %}" class="icon" data-toggle="tooltip" data-placement="bottom" title="I like this" data-template="<div class='tooltip bs-tooltip-bottom' role='tooltip'><div style='background-color: #727171;' class='tooltip-inner'></div></div>">
+                                {% if user.pk in liked_users_list %}
+                                    <i style="color: #365FD4" class="fas fa-thumbs-up"></i>
+                                {% else %}
+                                    <i class="fas fa-thumbs-up"></i>
+                                {% endif %}
+                                {{ current_video.liked_video_post.count }}</a>
+                            <a href="{% url 'App_Upload:unlike-video' pk=current_video.pk %}" class="icon" data-toggle="tooltip" data-placement="bottom" title="I dislike this" data-template="<div class='tooltip bs-tooltip-bottom' role='tooltip'><div style='background-color: #727171;' class='tooltip-inner'></div></div>">
+                                {% if user.pk in unliked_users_list %}
+                                    <i style="color: #365FD4" class="fas fa-thumbs-down fa-flip-horizontal"></i>
+                                {% else %}
+                                    <i class="fas fa-thumbs-down fa-flip-horizontal"></i>
+                                {% endif %}
+                                {{ current_video.unliked_video_post.count }}</a>
+                        </div>
+{#                    {% endifnotequal %}#}
+                </div>
+            </div>
+            <hr/>
+            <div class="author-info">
+                <h4 style="border: 1px solid #cccccc; text-align: center; margin: 5px 0 20px 0">Publisher Information</h4>
+                <div class="author">
+                    {% if current_video.user.user_profile.profile_pic %}
+                        <img class="rounded-circle" src="/media/{{ current_video.user.user_profile.profile_pic }}" alt="user-profile" />
+                    {% else %}
+                        <img class="rounded-circle" src="/media/profile_pics/profilepic.jpg" alt="user-profile" />
+                    {% endif %}
+                    {% ifnotequal current_video.user request.user %}
+                        <a href="{% url 'App_User:user-profile' pk=current_video.user.pk %}">{{ current_video.user.username }}</a>
+                    {% else %}
+                        <a href="{% url 'App_User:profile' %}">{{ current_video.user.username }}</a>
+                    {% endifnotequal %}
+                    {% ifnotequal current_video.user user %}
+                        {% if already_followed %}
+                            <a class="btn btn-warning btn-sm subscribe-btn ml-5" href="{% url 'App_User:unfollow' pk=current_video.user.pk %}">Un-subscribe</a>
+                        {% else %}
+                            <a class="btn btn-success btn-sm subscribe-btn ml-5" href="{% url 'App_User:follow' pk=current_video.user.pk %}">Subscribe</a>
+                        {% endif %}
+                    {% endifnotequal %}
+                </div>
+                <div class="author-description">
+                    <p>{{ current_video.user.user_profile.description }}</p>
+                </div>
+            </div>
+            <hr />
+            <div class="comment-box">
+                {% if user.user_profile.profile_pic %}
+                    <img width="30px" height="30px" class="rounded-circle" src="/media/{{ user.user_profile.profile_pic }}" alt="profile-pic" />
+                {% else %}
+                    <img width="30px" height="30px" class="rounded-circle" src="/media/profile_pics/profilepic.jpg" alt="profile-pic" />
+                {% endif %}
+                <form id="my-form" method="POST">
+                    {{ comment_form }}
+                    {% csrf_token %}
+                    <div class="comment-textfield float-right">
+                        <input type="submit" value="COMMENT" />
+                        <a onclick="cancelClicked(event)" id="clear-button">Cancel</a>
+                    </div>
+                </form>
+            </div>
+            <hr />
+            <div class="users-comments">
+                <h4>All Comments</h4>
+                {% for comment in comments %}
+                    <div class="user-comment">
+                        {% if comment.user.user_profile.profile_pic %}
+                            <img width="50" height="50px" class="rounded-circle" src="/media/{{ comment.user.user_profile.profile_pic }}" alt="profile-pic"/>
+                        {% else %}
+                            <img width="50px" height="50px" class="rounded-circle" src="/media/profile_pics/profilepic.jpg" alt="profile-pic" />
+                        {% endif %}
+                        <div style="display: flex; flex-direction: column">
+                            {% ifnotequal comment.user request.user %}
+                                <a href="{% url 'App_User:user-profile' pk=comment.user.pk %}">{{ comment.user.username }}</a>
+                            {% else %}
+                                <a href="{% url 'App_User:profile' %}">{{ comment.user.username }}</a>
+                            {% endifnotequal %}
+                            <p>{{ comment.comment }}</p>
+                        </div>
+                    </div>
+                    <div class="date">
+                        <p>Published at: <em>{{ comment.comment_date }}</em></p>
+                    </div>
+                    <div class="like-unlike-block">
+                        <a href="{% url 'App_Upload:like-comment' pk=comment.pk %}" class="icon" data-toggle="tooltip" data-placement="bottom" title="I like this" data-template="<div class='tooltip bs-tooltip-bottom' role='tooltip'><div style='background-color: #727171;' class='tooltip-inner'></div></div>">
+                            {% if comment.pk in comments_liked_by_user_list %}
+                                <i style="color: #365FD4" class="fas fa-thumbs-up"></i>
+                            {% else %}
+                                <i class="fas fa-thumbs-up"></i>
+                            {% endif %}
+                            {{ comment.comment_likes.count }}</a>
+                        <a href="{% url 'App_Upload:unlike-comment' pk=comment.pk %}" class="icon" data-toggle="tooltip" data-placement="bottom" title="I dislike this" data-template="<div class='tooltip bs-tooltip-bottom' role='tooltip'><div style='background-color: #727171;' class='tooltip-inner'></div></div>">
+                            {% if comment.pk in comments_unliked_by_user_list %}
+                                <i style="color: #365FD4" class="fas fa-thumbs-down fa-flip-horizontal"></i>
+                            {% else %}
+                                <i class="fas fa-thumbs-down fa-flip-horizontal"></i>
+                            {% endif %}
+                            {{ comment.comment_unlikes.count }}</a>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+{% endblock %}
+{% block script_block %}
+    <script>
+        $('[data-toggle="tooltip"]').tooltip();
+        $('#id_comment').focus(function(){
+            $('.comment-textfield').show();
+        })
+        function cancelClicked(event) {
+            $('.comment-textfield').hide();
+            $('#id_comment').value = '';
+        }
+    </script>
+{% endblock %}
